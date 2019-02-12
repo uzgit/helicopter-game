@@ -2,15 +2,20 @@
 
 import math
 import sys
-
-#import .base
+import argparse
 
 from pygamewrapper import PyGameWrapper
 
 import pygame
 import pygame.freetype
-from pygame.constants import K_w, K_s, K_q
+from pygame.constants import K_w, K_s, K_q, K_p
 from vec2d import vec2d
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--speed", help="Emulation speed (no units, default = 0.0004). Increase this value to go faster, decrease to go slower.", default = 0.0004, type = float)
+arguments = parser.parse_args()
+
+emulation_speed = arguments.speed
 
 BLACK      = (  0,   0,   0)
 GREY       = (169, 169, 169)
@@ -20,7 +25,9 @@ LSU_PURPLE = ( 70,  29, 124)
 LSU_GOLD   = (253, 208,  35)
 GREEN      = (  0, 255,  51)
 
-DISPLAY_UPDATE = '-silent' not in sys.argv and '-s' not in sys.argv
+#DISPLAY_UPDATE  = '-silent' not in sys.argv and '-s' not in sys.argv
+#DISPLAY_DATA    = DISPLAY_UPDATE and '-no-data' not in sys.argv
+DISPLAY_DATA = True
 
 WINDOW_WIDTH  = 700
 WINDOW_HEIGHT = 700
@@ -157,14 +164,16 @@ class Pixelcopter(PyGameWrapper):
 
     def __init__(self, width=48, height=48):
         actions ={
-            "up"   : K_w,
-            "quit" : K_q
+            "up"    : K_w,
+            "quit"  : K_q,
+            "pause" : K_p
         }
 
         PyGameWrapper.__init__(self, width, height, actions=actions)
 
         self.is_climbing = False
-        self.speed = 0.0004 * width
+        self.speed = emulation_speed * width
+        self.paused = False
 
     def _handle_player_events_flappy_mode(self):
         self.is_climbing = False
@@ -181,6 +190,8 @@ class Pixelcopter(PyGameWrapper):
                 elif key == self.actions['quit']:
                     pygame.quit()
                     sys.exit()
+                elif key == self.actions['pause']:
+                    self.paused = not self.paused
 
     def _handle_player_events_helicopter_mode(self):
         self.is_climbing = False
@@ -277,13 +288,13 @@ class Pixelcopter(PyGameWrapper):
     def _add_terrain(self, start, end):
         w = int(self.width * 0.1) #default is 0.1
         # each block takes up 10 units.
-        steps = range(start + int(w / 2), end + 10000 + int(w / 2), w)
+        steps = range(start + int(w / 2), end + int(w / 2), w)
+        #steps = range(start, end + w, 5)
         y_jitter = []
 
         freq = 4.5 / self.width + self.rng.uniform(-0.01, 0.01)
         for step in steps:
-            jitter = (self.height * 0.125) * \
-                math.sin(freq * step + self.rng.uniform(0.0, 0.5))
+            jitter = 0.5 * (self.height * 0.125) * math.sin(freq * step + self.rng.uniform(0.0, 0.5))
             y_jitter.append(jitter)
 
         y_pos = [int((self.height / 2.0) + y_jit) for y_jit in y_jitter]
@@ -403,13 +414,18 @@ if __name__ == "__main__":
     while True:
         if game.game_over():
             game.reset()
-        dt = game.clock.tick_busy_loop(30)
-        game.step(dt)
-        pygame.display.update()
 
-        state = game.getGameState()
-        courier_font.render_to(game.screen, (0,  0), display_status_line_1(state), BLACK)
-        courier_font.render_to(game.screen, (0, 20), display_status_line_2(state), BLACK)
-        courier_font.render_to(game.screen, (0, 40), display_status_line_3(state), BLACK)
-
-        pygame.display.flip()
+        if not game.paused:
+            dt = game.clock.tick_busy_loop(30)
+            game.step(dt)
+            
+            if DISPLAY_DATA:
+                state = game.getGameState()
+                courier_font.render_to(game.screen, (0,  0), display_status_line_1(state), BLACK)
+                courier_font.render_to(game.screen, (0, 20), display_status_line_2(state), BLACK)
+                courier_font.render_to(game.screen, (0, 40), display_status_line_3(state), BLACK)
+            
+            pygame.display.update()
+ 
+        if game.paused:
+            game._handle_player_events_flappy_mode()
