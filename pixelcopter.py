@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math
 import sys
@@ -9,9 +9,18 @@ import sys
 from pygamewrapper import PyGameWrapper
 
 import pygame
-from pygame.constants import K_w, K_s
+from pygame.constants import K_w, K_s, K_q
 #from .utils.vec2d import vec2d
 from vec2d import vec2d
+
+DISPLAY_UPDATE = '-silent' not in sys.argv and '-s' not in sys.argv
+
+WINDOW_WIDTH  = 700
+WINDOW_HEIGHT = 700
+BLOCK_WIDTH_COEFFICIENT   = 0.05 #default is 0.1
+BLOCK_HEIGHT_COEFFICIENT  = 0.10 #default is 0.2
+PLAYER_WIDTH_COEFFICIENT  = 0.03 #default = 0.05
+PLAYER_HEIGHT_COEFFICIENT = 0.03 #default = 0.05
 
 class Block(pygame.sprite.Sprite):
 
@@ -20,10 +29,8 @@ class Block(pygame.sprite.Sprite):
 
         self.pos = vec2d(pos_init)
 
-        self.width = int(SCREEN_WIDTH * 0.1)
-        self.height = int(SCREEN_HEIGHT * 0.2)
-#        self.width =  int(2)
-#        self.height = int(2)
+        self.width = int(SCREEN_WIDTH * BLOCK_WIDTH_COEFFICIENT)
+        self.height = int(SCREEN_HEIGHT * BLOCK_HEIGHT_COEFFICIENT)
         self.speed = speed
 
         self.SCREEN_WIDTH = SCREEN_WIDTH
@@ -62,8 +69,8 @@ class HelicopterPlayer(pygame.sprite.Sprite):
         self.fall_speed = speed * 0.09  # 0.0019
         self.momentum = 0
 
-        self.width = SCREEN_WIDTH * 0.05
-        self.height = SCREEN_HEIGHT * 0.05
+        self.width = SCREEN_WIDTH * PLAYER_WIDTH_COEFFICIENT
+        self.height = SCREEN_HEIGHT * PLAYER_HEIGHT_COEFFICIENT
 
         image = pygame.Surface((self.width, self.height))
         image.fill((0, 0, 0, 0))
@@ -96,6 +103,7 @@ class Terrain(pygame.sprite.Sprite):
         self.pos = vec2d(pos_init)
         self.speed = speed
         self.width = int( SCREEN_WIDTH * 0.2)
+#        self.width = int( SCREEN_WIDTH * 0.01)
 
         image = pygame.Surface((self.width, SCREEN_HEIGHT * 1.5))
         image.fill((0, 0, 0, 0))
@@ -141,8 +149,9 @@ class Pixelcopter(PyGameWrapper):
     """
 
     def __init__(self, width=48, height=48):
-        actions = {
-            "up": K_w
+        actions ={
+            "up"   : K_w,
+            "quit" : K_q
         }
 
         PyGameWrapper.__init__(self, width, height, actions=actions)
@@ -160,8 +169,11 @@ class Pixelcopter(PyGameWrapper):
 
             if event.type == pygame.KEYDOWN:
                 key = event.key
-                if key == self.actions['up']:
+                if   key == self.actions['up']:
                     self.is_climbing = True
+                elif key == self.actions['quit']:
+                    pygame.quit()
+                    sys.exit()
 
     def getGameState(self):
         """
@@ -336,7 +348,7 @@ if __name__ == "__main__":
     import numpy as np
 
     pygame.init()
-    game = Pixelcopter(width=256, height=256)
+    game = Pixelcopter(width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
     game.screen = pygame.display.set_mode(game.getScreenDims(), 0, 32)
     game.clock = pygame.time.Clock()
     game.rng = np.random.RandomState(24)
@@ -347,4 +359,5 @@ if __name__ == "__main__":
             game.reset()
         dt = game.clock.tick_busy_loop(30)
         game.step(dt)
+        print(game.getGameState())
         pygame.display.update()
