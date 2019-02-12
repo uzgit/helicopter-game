@@ -13,9 +13,16 @@ from vec2d import vec2d
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--speed", help="Emulation speed (no units, default = 0.0004). Increase this value to go faster, decrease to go slower.", default = 0.0004, type = float)
+parser.add_argument("-a", "--agent", help="Name of the type of agent to use to play the game.", default =None, type = str)
 arguments = parser.parse_args()
 
 emulation_speed = arguments.speed
+agent = arguments.agent
+
+if agent == "stupid":
+    import stupid_agent as Agent
+
+print("Using agent: %s." % (arguments.agent))
 
 BLACK      = (  0,   0,   0)
 GREY       = (169, 169, 169)
@@ -116,8 +123,7 @@ class Terrain(pygame.sprite.Sprite):
 
         self.pos = vec2d(pos_init)
         self.speed = speed
-#        self.width = int( SCREEN_WIDTH * 0.2)
-        self.width = int( SCREEN_WIDTH * 0.1)
+        self.width = int( SCREEN_WIDTH * 0.1) #default = 0.2
 
         image = pygame.Surface((self.width, SCREEN_HEIGHT * 1.5))
         image.fill((0, 0, 0, 0))
@@ -205,6 +211,28 @@ class Pixelcopter(PyGameWrapper):
         if keystate[self.actions['up']]:
             self.is_climbing = True
         elif keystate[self.actions['quit']]:
+            pygame.quit()
+            sys.exit()
+
+    def _handle_agent_action(self, action):
+
+        self.is_climbing = False
+
+        if   action == "up" :
+            self.is_climbing = True
+        elif action == "quit" :
+            pygame.quit()
+            sys.exit()
+
+    def _handle_player_events_in_agent_mode(self):
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        keystate = pygame.key.get_pressed()
+        if keystate[self.actions['quit']]:
             pygame.quit()
             sys.exit()
 
@@ -329,7 +357,9 @@ class Pixelcopter(PyGameWrapper):
     def step(self, dt):
 
         self.screen.fill((BLACK))
-        self._handle_player_events_flappy_mode()
+
+        if( agent == None ):
+            self._handle_player_events_flappy_mode()
 #        self._handle_player_events_helicopter_mode()
 
         self.score += self.rewards["tick"]
@@ -411,16 +441,31 @@ if __name__ == "__main__":
     game.init()
     courier_font = pygame.freetype.Font("courier.ttf", 16)
 
+    if agent is not None:
+        agent = Agent.Agent()
+
     while True:
         if game.game_over():
+#            print(game.getGameState())
             game.reset()
 
-        if not game.paused:
+            if agent is not None:
+                agent.reset()
+
+        if not game.paused: 
+
             dt = game.clock.tick_busy_loop(30)
             game.step(dt)
+           
+            state = game.getGameState()
+            
+            if agent is not None:
+                agent_action = agent.get_action(state)
+                game._handle_agent_action(agent_action)
+#                print(agent_action)
+                game._handle_player_events_in_agent_mode()
             
             if DISPLAY_DATA:
-                state = game.getGameState()
                 courier_font.render_to(game.screen, (0,  0), display_status_line_1(state), BLACK)
                 courier_font.render_to(game.screen, (0, 20), display_status_line_2(state), BLACK)
                 courier_font.render_to(game.screen, (0, 40), display_status_line_3(state), BLACK)
