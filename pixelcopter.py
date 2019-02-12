@@ -4,14 +4,21 @@ import math
 import sys
 
 #import .base
-#from .base.pygamewrapper import PyGameWrapper
 
 from pygamewrapper import PyGameWrapper
 
 import pygame
+import pygame.freetype
 from pygame.constants import K_w, K_s, K_q
-#from .utils.vec2d import vec2d
 from vec2d import vec2d
+
+BLACK      = (  0,   0,   0)
+GREY       = (169, 169, 169)
+SILVER     = (192, 192, 192)
+WHITE      = (255, 255, 255)
+LSU_PURPLE = ( 70,  29, 124)
+LSU_GOLD   = (253, 208,  35)
+GREEN      = (  0, 255,  51)
 
 DISPLAY_UPDATE = '-silent' not in sys.argv and '-s' not in sys.argv
 
@@ -42,7 +49,7 @@ class Block(pygame.sprite.Sprite):
 
         pygame.draw.rect(
             image,
-            (120, 240, 80),
+            GREY,
             (0, 0, self.width, self.height),
             0
         )
@@ -78,7 +85,7 @@ class HelicopterPlayer(pygame.sprite.Sprite):
 
         pygame.draw.rect(
             image,
-            (255, 255, 255),
+            WHITE,
             (0, 0, self.width, self.height),
             0
         )
@@ -114,7 +121,7 @@ class Terrain(pygame.sprite.Sprite):
         # top rect
         pygame.draw.rect(
             image,
-            color,
+            GREEN,
             (0, 0, self.width, SCREEN_HEIGHT * 0.5),
             0
         )
@@ -122,7 +129,7 @@ class Terrain(pygame.sprite.Sprite):
         # bot rect
         pygame.draw.rect(
             image,
-            color,
+            GREEN,
             (0, SCREEN_HEIGHT * 1.05, self.width, SCREEN_HEIGHT * 0.5),
             0
         )
@@ -206,6 +213,7 @@ class Pixelcopter(PyGameWrapper):
         current_terrain = pygame.sprite.spritecollide(
             self.player, self.terrain_group, False)[0]
         state = {
+            "player_x": self.player.pos.x,
             "player_y": self.player.pos.y,
             "player_vel": self.player.momentum,
             "player_dist_to_ceil": self.player.pos.y - (current_terrain.pos.y - self.height * 0.25),
@@ -291,7 +299,7 @@ class Pixelcopter(PyGameWrapper):
 
     def step(self, dt):
 
-        self.screen.fill((0, 0, 0))
+        self.screen.fill(BLACK)
         self._handle_player_events()
 
         self.score += self.rewards["tick"]
@@ -344,6 +352,22 @@ class Pixelcopter(PyGameWrapper):
         self.block_group.draw(self.screen)
         self.terrain_group.draw(self.screen)
 
+def display_status_line_1(status):
+
+    return "player:    (x position: %5.2f, y position: %3.2f, y velocity: %3.2f)" % (status["player_x"], status["player_y"], status["player_vel"])
+
+def display_status_line_2(status):
+
+    return "distance to: (ceiling: %3.2f, floor: %3.2f)" %(status["player_dist_to_ceil"], status["player_dist_to_floor"])
+
+            #"next_gate_dist_to_player": min_dist,
+            #"next_gate_block_top": min_block.pos.y,
+            #"next_gate_block_bottom": min_block.pos.y + min_block.height
+
+def display_status_line_3(status):
+
+    return "obstacle: (distance: %3.2f, top: %3.2f, bottom: %3.2f)" %(status["next_gate_dist_to_player"], status["next_gate_block_top"], status["next_gate_block_bottom"])
+
 if __name__ == "__main__":
     import numpy as np
 
@@ -353,11 +377,18 @@ if __name__ == "__main__":
     game.clock = pygame.time.Clock()
     game.rng = np.random.RandomState(24)
     game.init()
+    courier_font = pygame.freetype.Font("courier.ttf", 16)
 
     while True:
         if game.game_over():
             game.reset()
         dt = game.clock.tick_busy_loop(30)
         game.step(dt)
-        print(game.getGameState())
         pygame.display.update()
+
+        state = game.getGameState()
+        courier_font.render_to(game.screen, (0,  0), display_status_line_1(state), BLACK)
+        courier_font.render_to(game.screen, (0, 20), display_status_line_2(state), BLACK)
+        courier_font.render_to(game.screen, (0, 40), display_status_line_3(state), BLACK)
+
+        pygame.display.flip()
