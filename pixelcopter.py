@@ -121,7 +121,7 @@ class Terrain(pygame.sprite.Sprite):
         # top rect
         pygame.draw.rect(
             image,
-            GREEN,
+            (WHITE),
             (0, 0, self.width, SCREEN_HEIGHT * 0.5),
             0
         )
@@ -129,7 +129,7 @@ class Terrain(pygame.sprite.Sprite):
         # bot rect
         pygame.draw.rect(
             image,
-            GREEN,
+            (WHITE),
             (0, SCREEN_HEIGHT * 1.05, self.width, SCREEN_HEIGHT * 0.5),
             0
         )
@@ -205,6 +205,7 @@ class Pixelcopter(PyGameWrapper):
         -------
 
         dict
+            * player distance traveled
             * player y position.
             * player velocity.
             * player distance to floor.
@@ -228,7 +229,7 @@ class Pixelcopter(PyGameWrapper):
         current_terrain = pygame.sprite.spritecollide(
             self.player, self.terrain_group, False)[0]
         state = {
-            "player_x": self.player.pos.x,
+            "distance_traveled": self.distance_traveled,
             "player_y": self.player.pos.y,
             "player_vel": self.player.momentum,
             "player_dist_to_ceil": self.player.pos.y - (current_terrain.pos.y - self.height * 0.25),
@@ -270,6 +271,8 @@ class Pixelcopter(PyGameWrapper):
 
         self.terrain_group = pygame.sprite.Group()
         self._add_terrain(0, self.width * 4)
+
+        self.distance_traveled = 0
 
     def _add_terrain(self, start, end):
         w = int(self.width * 0.1) #default is 0.1
@@ -314,7 +317,7 @@ class Pixelcopter(PyGameWrapper):
 
     def step(self, dt):
 
-        self.screen.fill(BLACK)
+        self.screen.fill((BLACK))
         self._handle_player_events_flappy_mode()
 #        self._handle_player_events_helicopter_mode()
 
@@ -368,13 +371,15 @@ class Pixelcopter(PyGameWrapper):
         self.block_group.draw(self.screen)
         self.terrain_group.draw(self.screen)
 
+        self.distance_traveled += self.speed * dt
+
 def display_status_line_1(status):
 
-    return "player:    (x position: %5.2f, y position: %3.2f, y velocity: %3.2f)" % (status["player_x"], status["player_y"], status["player_vel"])
+    return "player: (distance: %-7.2f, y position: %4.2f, y velocity: %4.2f)" % (status["distance_traveled"], status["player_y"], status["player_vel"])
 
 def display_status_line_2(status):
 
-    return "distance to: (ceiling: %3.2f, floor: %3.2f)" %(status["player_dist_to_ceil"], status["player_dist_to_floor"])
+    return "distance to: (ceiling: %-3.2f, floor: %3.2f)" %(status["player_dist_to_ceil"], status["player_dist_to_floor"])
 
             #"next_gate_dist_to_player": min_dist,
             #"next_gate_block_top": min_block.pos.y,
