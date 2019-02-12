@@ -109,8 +109,8 @@ class Terrain(pygame.sprite.Sprite):
 
         self.pos = vec2d(pos_init)
         self.speed = speed
-        self.width = int( SCREEN_WIDTH * 0.2)
-#        self.width = int( SCREEN_WIDTH * 0.01)
+#        self.width = int( SCREEN_WIDTH * 0.2)
+        self.width = int( SCREEN_WIDTH * 0.1)
 
         image = pygame.Surface((self.width, SCREEN_HEIGHT * 1.5))
         image.fill((0, 0, 0, 0))
@@ -166,7 +166,7 @@ class Pixelcopter(PyGameWrapper):
         self.is_climbing = False
         self.speed = 0.0004 * width
 
-    def _handle_player_events(self):
+    def _handle_player_events_flappy_mode(self):
         self.is_climbing = False
 
         for event in pygame.event.get():
@@ -181,6 +181,21 @@ class Pixelcopter(PyGameWrapper):
                 elif key == self.actions['quit']:
                     pygame.quit()
                     sys.exit()
+
+    def _handle_player_events_helicopter_mode(self):
+        self.is_climbing = False
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        keystate = pygame.key.get_pressed()
+        if keystate[self.actions['up']]:
+            self.is_climbing = True
+        elif keystate[self.actions['quit']]:
+            pygame.quit()
+            sys.exit()
 
     def getGameState(self):
         """
@@ -257,9 +272,9 @@ class Pixelcopter(PyGameWrapper):
         self._add_terrain(0, self.width * 4)
 
     def _add_terrain(self, start, end):
-        w = int(self.width * 0.1)
+        w = int(self.width * 0.1) #default is 0.1
         # each block takes up 10 units.
-        steps = range(start + int(w / 2), end + int(w / 2), w)
+        steps = range(start + int(w / 2), end + 10000 + int(w / 2), w)
         y_jitter = []
 
         freq = 4.5 / self.width + self.rng.uniform(-0.01, 0.01)
@@ -300,7 +315,8 @@ class Pixelcopter(PyGameWrapper):
     def step(self, dt):
 
         self.screen.fill(BLACK)
-        self._handle_player_events()
+        self._handle_player_events_flappy_mode()
+#        self._handle_player_events_helicopter_mode()
 
         self.score += self.rewards["tick"]
 
