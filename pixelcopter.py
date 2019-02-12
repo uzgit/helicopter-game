@@ -3,6 +3,7 @@
 import math
 import sys
 import argparse
+import numpy
 
 from pygamewrapper import PyGameWrapper
 
@@ -12,8 +13,9 @@ from pygame.constants import K_w, K_s, K_q, K_p
 from vec2d import vec2d
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-s", "--speed", help="Emulation speed (no units, default = 0.0004). Increase this value to go faster, decrease to go slower.", default = 0.0004, type = float)
-parser.add_argument("-a", "--agent", help="Name of the type of agent to use to play the game.", default =None, type = str)
+parser.add_argument("-s", "--speed", help = "Emulation speed (no units, default = 0.0004). Increase this value to go faster, decrease to go slower.", default = 0.0004, type = float)
+parser.add_argument("-a", "--agent", help = "Name of the type of agent to use to play the game.", default =None, type = str)
+parser.add_argument("-n", "--noisy", help = "Adds gausian noise into the simulated sensor values. Noise amplitude for obstaces is directly proportional to the distance from the obstacle.", action="store_true")
 arguments = parser.parse_args()
 
 emulation_speed = arguments.speed
@@ -22,7 +24,15 @@ agent = arguments.agent
 if agent == "stupid":
     import stupid_agent as Agent
 
-print("Using agent: %s." % (arguments.agent))
+if( arguments.agent is not None ):
+    print("Using agent: %s." % (arguments.agent))
+else:
+    print("Using human agent.")
+
+if( arguments.noisy ):
+    print("Using noisy sensor data for simulated sensors.")
+elif agent is not None:
+    print("Using true sensor data for simulated sensors.")
 
 BLACK      = (  0,   0,   0)
 GREY       = (169, 169, 169)
@@ -221,6 +231,7 @@ class Pixelcopter(PyGameWrapper):
         if   action == "up" :
             self.is_climbing = True
         elif action == "quit" :
+            print("Quit requested by agent.")
             pygame.quit()
             sys.exit()
 
@@ -279,6 +290,25 @@ class Pixelcopter(PyGameWrapper):
         }
 
         return state
+
+    # Distance traveled is always given as a true value.
+    def getNoisyGameState(self):
+
+        true_state = self.getGameState()
+        noisy_state = true_state.copy()
+
+        gate_distance = true_state["next_gate_dist_to_player"]
+
+        #numpy.random.normal( <mean> , <standard deviation> )
+        noisy_state["player_y"]                 += numpy.random.normal(0, 2)
+        noisy_state["player_vel"]               += numpy.random.normal(0, 0.2)
+        noisy_state["player_dist_to_ceil"]  += numpy.random.normal(0, 2)
+        noisy_state["player_dist_to_floor"]     += numpy.random.normal(0, 2)
+        noisy_state["next_gate_block_top"]      += numpy.random.normal(0, 2 + (gate_distance / 60))
+        noisy_state["next_gate_block_bottom"]   += numpy.random.normal(0, 2 + (gate_distance / 60))
+        noisy_state["next_gate_dist_to_player"] += numpy.random.normal(0, 2)
+
+        return noisy_state
 
     def getScreenDims(self):
         return self.screen_dim
@@ -456,8 +486,11 @@ if __name__ == "__main__":
 
             dt = game.clock.tick_busy_loop(30)
             game.step(dt)
-           
-            state = game.getGameState()
+         
+            if arguments.noisy:
+                state = game.getNoisyGameState()
+            else:
+                state = game.getGameState()
             
             if agent is not None:
                 agent_action = agent.get_action(state)
