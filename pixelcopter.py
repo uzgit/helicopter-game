@@ -13,6 +13,7 @@ from lib.pygamewrapper import PyGameWrapper
 from lib.vec2d import vec2d
 
 parser = argparse.ArgumentParser()
+parser.add_argument("-m", "--mode", help = "In <flappy> mode, an up action is like one flap of a birds wings. Pressing up gives the helicopter a momentary lift. In <helicopter> mode, an up action is like throttling up. It gives the helicopter continuous lift.", default="flappy")
 parser.add_argument("-s", "--fps",     help = "Frames per second. Increase this value to go faster, decrease to go slower.", default = 30, type = float)
 parser.add_argument("-a", "--agent",   help = "Name of the type of agent to use to play the game. This should be equal to the name of the agent's python file, without the '.py'", default =None, type = str)
 parser.add_argument("-n", "--noisy-sensors",   help = "Adds gausian noise into the simulated sensor values. Noise amplitude for obstaces is directly proportional to the distance from the obstacle.", action="store_true")
@@ -90,8 +91,14 @@ class HelicopterPlayer(pygame.sprite.Sprite):
         pos_init = (int(SCREEN_WIDTH * 0.35), SCREEN_HEIGHT / 2)
         self.pos = vec2d(pos_init)
         self.speed = speed
-        self.climb_speed = speed * -0.875  # -0.0175
-        self.fall_speed = speed * 0.09  # 0.0019
+
+        if arguments.mode == "flappy":
+            self.climb_speed = speed * -0.875  # -0.0175
+            self.fall_speed = speed * 0.09  # 0.0019
+        else:
+            self.climb_speed = speed * -0.09
+            self.fall_speed = speed * 0.09
+
         self.momentum = 0
 
         self.width = SCREEN_WIDTH * PLAYER_WIDTH_COEFFICIENT
@@ -213,13 +220,17 @@ class Pixelcopter(PyGameWrapper):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                key = event.key
+                if key == self.actions['quit']:
+                    pygame.quit()
+                    sys.exit()
+                elif key == self.actions['pause']:
+                    self.paused = not self.paused
 
         keystate = pygame.key.get_pressed()
         if keystate[self.actions['up']]:
             self.is_climbing = True
-        elif keystate[self.actions['quit']]:
-            pygame.quit()
-            sys.exit()
 
     def _handle_agent_action(self, action):
 
@@ -397,8 +408,10 @@ class Pixelcopter(PyGameWrapper):
 
         #If the player is human
         if agent == None:
-            self._handle_player_events_flappy_mode()
-#        self._handle_player_events_helicopter_mode()
+            if arguments.mode == "flappy":
+                self._handle_player_events_flappy_mode()
+            else:
+                self._handle_player_events_helicopter_mode()
 
         #If the player is an agent
         else:
