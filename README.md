@@ -39,6 +39,11 @@ For an AI agent player whose class is stored in the agents/ subdirectory and cal
 ```./pixelcopter.py --agent stupid_agent```
 
 
+To run the game using noisy positioning data:
+
+```./pixelcopter.py --agent stupid_agent --noisy-sensors```
+
+
 To run the game without animation (```--quiet-mode```), for quicker testing of an agent:
 
 ```./pixelcopter.py --fps 4000 --agent stupid_agent --quiet-mode```
