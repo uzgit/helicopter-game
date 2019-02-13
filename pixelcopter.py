@@ -6,11 +6,11 @@ import argparse
 import importlib
 import numpy
 
-from pygamewrapper import PyGameWrapper
 import pygame
 import pygame.freetype
 from pygame.constants import K_w, K_s, K_q, K_p
-from vec2d import vec2d
+from lib.pygamewrapper import PyGameWrapper
+from lib.vec2d import vec2d
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--fps",     help = "Frames per second. Increase this value to go faster, decrease to go slower.", default = 30, type = float)
@@ -24,7 +24,8 @@ arguments = parser.parse_args()
 agent_argument = arguments.agent
 
 if agent_argument is not None:
-    Agent = importlib.import_module(agent_argument)
+
+    Agent = importlib.import_module("agents." + agent_argument)
 
 print(arguments)
 
@@ -483,7 +484,7 @@ if __name__ == "__main__":
     game.init()
 
     #Instantiate the font used to display text on the screen
-    courier_font = pygame.freetype.Font("courier.ttf", 16)
+    courier_font = pygame.freetype.Font("fonts/courier.ttf", 16)
 
     while True:
         if game.game_over():
