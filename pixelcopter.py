@@ -382,10 +382,14 @@ class Pixelcopter(PyGameWrapper):
         )
 
     def reset(self):
-        self.init()
         
         if agent is not None:
-            agent.reset()
+            if arguments.noisy_sensors:
+                agent.reset(game.getNoisyGameState())
+            else:
+                agent.reset(game.getGameState())
+        
+        self.init()
 
     def step(self, dt):
 
