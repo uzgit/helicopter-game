@@ -4,6 +4,7 @@ class Agent():
     def __init__(self):
 
         self.iterations = 0
+        self.activation_threshold = 10
 
     def reset(self):
 
@@ -14,12 +15,23 @@ class Agent():
         action = None
 
         self.iterations += 1
-        if(self.iterations % 11 == 0):
+
+        if(game_state["player_dist_to_ceil"] > game_state["player_dist_to_floor"]):
+            self.activation_threshold = 10
+        else:
+            self.activation_threshold = 11
+
+        if(self.iterations % self.activation_threshold == 0):
 
             action = "up"
 
-        if(self.iterations == 200):
+        if(self.iterations == 400):
 
             action = "quit"
+        
+#        if action == "up":
+#            print("%s up" % self.iterations)
+#        else:
+#            print("%s None" % self.iterations)
 
         return action

@@ -3,37 +3,30 @@
 import math
 import sys
 import argparse
+import importlib
 import numpy
 
 from pygamewrapper import PyGameWrapper
-
 import pygame
 import pygame.freetype
 from pygame.constants import K_w, K_s, K_q, K_p
 from vec2d import vec2d
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-s", "--speed",   help = "Emulation speed (no units, default = 0.0004). Increase this value to go faster, decrease to go slower.", default = 0.0004, type = float)
-parser.add_argument("-a", "--agent",   help = "Name of the type of agent to use to play the game.", default =None, type = str)
-parser.add_argument("-n", "--noisy",   help = "Adds gausian noise into the simulated sensor values. Noise amplitude for obstaces is directly proportional to the distance from the obstacle.", action="store_true")
+parser.add_argument("-s", "--fps",     help = "Frames per second. Increase this value to go faster, decrease to go slower.", default = 30, type = float)
+parser.add_argument("-a", "--agent",   help = "Name of the type of agent to use to play the game. This should be equal to the name of the agent's python file, without the '.py'", default =None, type = str)
+parser.add_argument("-n", "--noisy-sensors",   help = "Adds gausian noise into the simulated sensor values. Noise amplitude for obstaces is directly proportional to the distance from the obstacle.", action="store_true")
 parser.add_argument("-d", "--no-data", help = "Suppresses on-screen data output.", action="store_true")
+parser.add_argument("-q", "--quiet-mode",   help = "Quiet mode simulates the game without animation.", action="store_true")
 arguments = parser.parse_args()
 
-emulation_speed = arguments.speed
-agent = arguments.agent
+#emulation_speed = arguments.speed
+agent_argument = arguments.agent
 
-if agent == "stupid":
-    import stupid_agent as Agent
+if agent_argument is not None:
+    Agent = importlib.import_module(agent_argument)
 
-if( arguments.agent is not None ):
-    print("Using agent: %s." % (arguments.agent))
-else:
-    print("Using human agent.")
-
-if( arguments.noisy ):
-    print("Using noisy sensor data for simulated sensors.")
-elif agent is not None:
-    print("Using true sensor data for simulated sensors.")
+print(arguments)
 
 BLACK      = (  0,   0,   0)
 GREY       = (169, 169, 169)
@@ -43,12 +36,6 @@ LSU_PURPLE = ( 70,  29, 124)
 LSU_GOLD   = (253, 208,  35)
 GREEN      = (  0, 255,  51)
 
-#DISPLAY_UPDATE  = '-silent' not in sys.argv and '-s' not in sys.argv
-DISPLAY_DATA = not arguments.no_data
-#DISPLAY_DATA = True
-
-print(arguments)
-
 WINDOW_WIDTH  = 700
 WINDOW_HEIGHT = 700
 BLOCK_WIDTH_COEFFICIENT   = 0.05 #default is 0.1
@@ -56,6 +43,7 @@ BLOCK_HEIGHT_COEFFICIENT  = 0.10 #default is 0.2
 PLAYER_WIDTH_COEFFICIENT  = 0.03 #default = 0.05
 PLAYER_HEIGHT_COEFFICIENT = 0.03 #default = 0.05
 
+# Class for the blocks that appear in the way of the helicopter
 class Block(pygame.sprite.Sprite):
 
     def __init__(self, pos_init, speed, SCREEN_WIDTH, SCREEN_HEIGHT):
@@ -90,7 +78,7 @@ class Block(pygame.sprite.Sprite):
 
         self.rect.center = (self.pos.x, self.pos.y)
 
-
+# Class for the pixhel that takes the place of the helicopter
 class HelicopterPlayer(pygame.sprite.Sprite):
 
     def __init__(self, speed, SCREEN_WIDTH, SCREEN_HEIGHT):
@@ -128,7 +116,7 @@ class HelicopterPlayer(pygame.sprite.Sprite):
 
         self.rect.center = (self.pos.x, self.pos.y)
 
-
+# Class for the terrain forming the border of the "cave"
 class Terrain(pygame.sprite.Sprite):
 
     def __init__(self, pos_init, speed, SCREEN_WIDTH, SCREEN_HEIGHT):
@@ -168,7 +156,7 @@ class Terrain(pygame.sprite.Sprite):
         self.pos.x -= self.speed * dt
         self.rect.center = (self.pos.x, self.pos.y)
 
-
+# Class for the actual Pixelcopter game object
 class Pixelcopter(PyGameWrapper):
     """
     Parameters
@@ -181,7 +169,7 @@ class Pixelcopter(PyGameWrapper):
 
     """
 
-    def __init__(self, width=48, height=48):
+    def __init__(self, width=48, height=48, agent=None):
         actions ={
             "up"    : K_w,
             "quit"  : K_q,
@@ -191,8 +179,10 @@ class Pixelcopter(PyGameWrapper):
         PyGameWrapper.__init__(self, width, height, actions=actions)
 
         self.is_climbing = False
-        self.speed = emulation_speed * width
+        self.speed = 0.0004 * width
         self.paused = False
+
+        self.agent = agent
 
     def _handle_player_events_flappy_mode(self):
         self.is_climbing = False
@@ -386,14 +376,31 @@ class Pixelcopter(PyGameWrapper):
 
     def reset(self):
         self.init()
+        
+        if agent is not None:
+            agent.reset()
 
     def step(self, dt):
 
         self.screen.fill((BLACK))
 
-        if( agent == None ):
+        #If the player is human
+        if agent == None:
             self._handle_player_events_flappy_mode()
 #        self._handle_player_events_helicopter_mode()
+
+        #If the player is an agent
+        else:
+            if arguments.noisy_sensors:
+                state = game.getNoisyGameState()
+            else:
+                state = game.getGameState()
+            
+            if agent is not None:
+                agent_action = agent.get_action(state)
+                game._handle_agent_action(agent_action)
+                game._handle_player_events_in_agent_mode()
+
 
         self.score += self.rewards["tick"]
 
@@ -447,66 +454,67 @@ class Pixelcopter(PyGameWrapper):
 
         self.distance_traveled += self.speed * dt
 
+#################################################################################################
+# Some functions to display data to the screen
 def display_status_line_1(status):
-
     return "player: (distance: %-7.2f, y position: %4.2f, y velocity: %4.2f)" % (status["distance_traveled"], status["player_y"], status["player_vel"])
-
 def display_status_line_2(status):
-
     return "distance to: (ceiling: %-3.2f, floor: %3.2f)" %(status["player_dist_to_ceil"], status["player_dist_to_floor"])
-
-            #"next_gate_dist_to_player": min_dist,
-            #"next_gate_block_top": min_block.pos.y,
-            #"next_gate_block_bottom": min_block.pos.y + min_block.height
-
 def display_status_line_3(status):
-
     return "obstacle: (distance: %3.2f, top: %3.2f, bottom: %3.2f)" %(status["next_gate_dist_to_player"], status["next_gate_block_top"], status["next_gate_block_bottom"])
 
+#################################################################################################
 if __name__ == "__main__":
     import numpy as np
 
+    #Instantiate the agent, if an agent is specified
+    if agent_argument is not None:
+        agent = Agent.Agent()
+    else:
+        agent = None
+
+    #Instantiate and initialize the game
     pygame.init()
-    game = Pixelcopter(width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
+    game = Pixelcopter(width=WINDOW_WIDTH, height=WINDOW_HEIGHT, agent=agent)
     game.screen = pygame.display.set_mode(game.getScreenDims(), 0, 32)
     game.clock = pygame.time.Clock()
     game.rng = np.random.RandomState(24)
     game.init()
-    courier_font = pygame.freetype.Font("courier.ttf", 16)
 
-    if agent is not None:
-        agent = Agent.Agent()
+    #Instantiate the font used to display text on the screen
+    courier_font = pygame.freetype.Font("courier.ttf", 16)
 
     while True:
         if game.game_over():
-#            print(game.getGameState())
             game.reset()
 
-            if agent is not None:
-                agent.reset()
-
         if not game.paused: 
+            
+            # Increment the time, delaying frames to keep a constant framerate
+            dt = game.clock.tick_busy_loop(arguments.fps) #default is 30
+            # Instead of using a dynamic dt, use a constant dt so that an agent's speed
+            #   does not change relative to the game speed.
+            #game.step(dt)
+            game.step(33)
+            
+            # Determine whether to display data to the screen (chosen by user)
+            if not arguments.no_data:
 
-            dt = game.clock.tick_busy_loop(30)
-            game.step(dt)
-         
-            if arguments.noisy:
-                state = game.getNoisyGameState()
-            else:
-                state = game.getGameState()
-            
-            if agent is not None:
-                agent_action = agent.get_action(state)
-                game._handle_agent_action(agent_action)
-#                print(agent_action)
-                game._handle_player_events_in_agent_mode()
-            
-            if DISPLAY_DATA:
+                # Choose between display noisy data or true data
+                if arguments.noisy_sensors:
+                    state = game.getNoisyGameState()
+                else:
+                    state = game.getGameState()
+                
+                # Display data to the screen
                 courier_font.render_to(game.screen, (0,  0), display_status_line_1(state), BLACK)
                 courier_font.render_to(game.screen, (0, 20), display_status_line_2(state), BLACK)
                 courier_font.render_to(game.screen, (0, 40), display_status_line_3(state), BLACK)
             
-            pygame.display.update()
+            # Animate
+            if not arguments.quiet_mode:
+                pygame.display.update()
  
+        # If the game is paused, we still need to handle a user's "quit" action.
         if game.paused:
             game._handle_player_events_flappy_mode()
