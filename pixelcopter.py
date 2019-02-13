@@ -448,9 +448,10 @@ class Pixelcopter(PyGameWrapper):
         if self.lives <= 0.0:
             self.score += self.rewards["loss"]
 
-        self.player_group.draw(self.screen)
-        self.block_group.draw(self.screen)
-        self.terrain_group.draw(self.screen)
+        if not arguments.quiet_mode:
+            self.player_group.draw(self.screen)
+            self.block_group.draw(self.screen)
+            self.terrain_group.draw(self.screen)
 
         self.distance_traveled += self.speed * dt
 
