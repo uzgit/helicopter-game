@@ -13,9 +13,10 @@ from pygame.constants import K_w, K_s, K_q, K_p
 from vec2d import vec2d
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-s", "--speed", help = "Emulation speed (no units, default = 0.0004). Increase this value to go faster, decrease to go slower.", default = 0.0004, type = float)
-parser.add_argument("-a", "--agent", help = "Name of the type of agent to use to play the game.", default =None, type = str)
-parser.add_argument("-n", "--noisy", help = "Adds gausian noise into the simulated sensor values. Noise amplitude for obstaces is directly proportional to the distance from the obstacle.", action="store_true")
+parser.add_argument("-s", "--speed",   help = "Emulation speed (no units, default = 0.0004). Increase this value to go faster, decrease to go slower.", default = 0.0004, type = float)
+parser.add_argument("-a", "--agent",   help = "Name of the type of agent to use to play the game.", default =None, type = str)
+parser.add_argument("-n", "--noisy",   help = "Adds gausian noise into the simulated sensor values. Noise amplitude for obstaces is directly proportional to the distance from the obstacle.", action="store_true")
+parser.add_argument("-d", "--no-data", help = "Suppresses on-screen data output.", action="store_true")
 arguments = parser.parse_args()
 
 emulation_speed = arguments.speed
@@ -43,8 +44,10 @@ LSU_GOLD   = (253, 208,  35)
 GREEN      = (  0, 255,  51)
 
 #DISPLAY_UPDATE  = '-silent' not in sys.argv and '-s' not in sys.argv
-#DISPLAY_DATA    = DISPLAY_UPDATE and '-no-data' not in sys.argv
-DISPLAY_DATA = True
+DISPLAY_DATA = not arguments.no_data
+#DISPLAY_DATA = True
+
+print(arguments)
 
 WINDOW_WIDTH  = 700
 WINDOW_HEIGHT = 700
