@@ -5,9 +5,11 @@ class Agent():
 
         self.iterations = 0
         self.activation_threshold = 10
+        self.target_distance = 4000
 
     def reset(self):
 
+        print("Reset requested by game.")
         self.__init__()
 
     def get_action(self, game_state):
@@ -25,8 +27,9 @@ class Agent():
 
             action = "up"
 
-        if(self.iterations == 400):
-
+        if(game_state["distance_traveled"] >= self.target_distance):
+            
+            print("Stupid agent reached a distance of %s", game_state["distance_traveled"])
             action = "quit"
         
 #        if action == "up":
