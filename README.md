@@ -49,6 +49,11 @@ To run the game without animation (```--quiet-mode```), for quicker testing of a
 ```./pixelcopter.py --fps 4000 --agent stupid_agent --quiet-mode```
 
 
+By default, the game is in 'flappy' mode, like in Flappy Bird. However, it can be run in 'helicopter' mode:
+
+```./pixelcopter.py --mode helicopter```
+
+
 ## Agent Structure
 
 Agents must be contained in a uniquely-named ```.py``` file within a class ```Agent```. Agent selection and import is done at the terminal at runtime as described above. Agents must contain the following functions:
