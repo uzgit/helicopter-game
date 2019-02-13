@@ -24,6 +24,7 @@ Clipart for the helicopter is taken from https://www.clipartmax.com/download/m2i
 ## Usage:
 
 For a human player:
+
 ```./pixelcopter.py```
 
 
