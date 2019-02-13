@@ -231,18 +231,21 @@ class Pixelcopter(PyGameWrapper):
             print("Quit requested by agent.")
             pygame.quit()
             sys.exit()
-
-    def _handle_player_events_in_agent_mode(self):
+    
+    def _handle_player_pause_quit_events(self):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        keystate = pygame.key.get_pressed()
-        if keystate[self.actions['quit']]:
-            pygame.quit()
-            sys.exit()
+            if event.type == pygame.KEYDOWN:
+                key = event.key
+                if key == self.actions['quit']:
+                    pygame.quit()
+                    sys.exit()
+                elif key == self.actions['pause']:
+                    self.paused = not self.paused
 
     def getGameState(self):
         """
@@ -403,7 +406,7 @@ class Pixelcopter(PyGameWrapper):
             if agent is not None:
                 agent_action = agent.get_action(state)
                 game._handle_agent_action(agent_action)
-                game._handle_player_events_in_agent_mode()
+                game._handle_player_pause_quit_events()
 
 
         self.score += self.rewards["tick"]
@@ -522,4 +525,4 @@ if __name__ == "__main__":
  
         # If the game is paused, we still need to handle a user's "quit" action.
         if game.paused:
-            game._handle_player_events_flappy_mode()
+            game._handle_player_pause_quit_events()
