@@ -85,6 +85,8 @@ class HelicopterPlayer(pygame.sprite.Sprite):
     def __init__(self, speed, SCREEN_WIDTH, SCREEN_HEIGHT):
         pygame.sprite.Sprite.__init__(self)
 
+        helicopter = pygame.image.load("images/helicopter_tiny.png")
+
         pos_init = (int(SCREEN_WIDTH * 0.35), SCREEN_HEIGHT / 2)
         self.pos = vec2d(pos_init)
         self.speed = speed
@@ -95,17 +97,18 @@ class HelicopterPlayer(pygame.sprite.Sprite):
         self.width = SCREEN_WIDTH * PLAYER_WIDTH_COEFFICIENT
         self.height = SCREEN_HEIGHT * PLAYER_HEIGHT_COEFFICIENT
 
-        image = pygame.Surface((self.width, self.height))
+        image = pygame.Surface((2*self.width, 1.5*self.height))
         image.fill((0, 0, 0, 0))
         image.set_colorkey((0, 0, 0))
 
-        pygame.draw.rect(
-            image,
-            WHITE,
-            (0, 0, self.width, self.height),
-            0
-        )
+#        pygame.draw.rect(
+#            image,
+#            WHITE,
+#            (0, 0, self.width, self.height),
+#            0
+#        )
 
+        image.blit(helicopter, (0,0))
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.center = pos_init
