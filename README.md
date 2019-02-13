@@ -50,4 +50,4 @@ Agents must be contained in a uniquely-named ```.py``` file within a class ```Ag
 
 * ```Agent(self)``` is the constructor called by the game.
 * ```get_action(self, game_state)``` is called by the game once per frame. It supplies the agent with the current state of the game and expects an action.
-* ```reset(self)``` is called by the game in the event of a game-over.
+* ```reset(self, game_state)``` is called by the game in the event of a game-over.
