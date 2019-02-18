@@ -521,7 +521,7 @@ if __name__ == "__main__":
             #   does not change relative to the game speed.
             #game.step(dt)
             game.step(33)
-            
+
             # Determine whether to display data to the screen (chosen by user)
             if not arguments.no_data:
 
