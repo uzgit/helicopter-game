@@ -8,7 +8,7 @@ import numpy
 
 import pygame
 import pygame.freetype
-from pygame.constants import K_w, K_s, K_q, K_p
+from pygame.constants import K_w, K_s, K_q, K_p, K_v
 from lib.pygamewrapper import PyGameWrapper
 from lib.vec2d import vec2d
 
@@ -184,7 +184,8 @@ class Pixelcopter(PyGameWrapper):
         actions ={
             "up"    : K_w,
             "quit"  : K_q,
-            "pause" : K_p
+            "pause" : K_p,
+            "toggle_quiet_mode" : K_v
         }
 
         PyGameWrapper.__init__(self, width, height, actions=actions)
@@ -257,6 +258,8 @@ class Pixelcopter(PyGameWrapper):
                     sys.exit()
                 elif key == self.actions['pause']:
                     self.paused = not self.paused
+                elif key == self.actions['toggle_quiet_mode']:
+                    arguments.quiet_mode = not arguments.quiet_mode
 
     def getGameState(self):
         """
