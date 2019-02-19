@@ -29,7 +29,7 @@ class Agent():
 
         if(game_state["distance_traveled"] >= self.target_distance):
             
-            print("Stupid agent reached a distance of %0.2f with target distance of %0.2f" %(game_state["distance_traveled"], self.target_distance))
+            print("Stupid helicopter agent reached a distance of %0.2f with target distance of %0.2f" %(game_state["distance_traveled"], self.target_distance))
             action = "quit"
         
 #        if action == "up":
