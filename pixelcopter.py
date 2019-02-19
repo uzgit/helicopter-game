@@ -294,7 +294,7 @@ class Pixelcopter(PyGameWrapper):
             self.player, self.terrain_group, False)[0]
 
         scanner_height = 500 #pixels or something
-        num_segments = 10
+        num_segments = 5
         segments = []
         for i in range(num_segments - 1):
             segment_bottom = (self.player.pos.y - scanner_height/2.0) + float(i) / num_segments * scanner_height
