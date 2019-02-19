@@ -292,15 +292,33 @@ class Pixelcopter(PyGameWrapper):
 
         current_terrain = pygame.sprite.spritecollide(
             self.player, self.terrain_group, False)[0]
+
+        scanner_height = 500 #pixels or something
+        num_segments = 10
+        segments = []
+        for i in range(num_segments - 1):
+            segment_bottom = (self.player.pos.y - scanner_height/2.0) + float(i) / num_segments * scanner_height
+            segment_top = (self.player.pos.y - scanner_height/2.0) + float(i+1) / num_segments * scanner_height
+            
+            segment_occupied = 0.0
+            if (min_block.pos.y <= segment_top and min_block.pos.y >= segment_bottom):
+                segment_occupied = 1.0
+            elif ((min_block.pos.y + min_block.height) <= segment_top and (min_block.pos.y + min_block.height) >= segment_bottom):
+                segment_occupied = 1.0
+            segments.append(segment_occupied)
+
+        #print(segments)
+
         state = {
-            "distance_traveled": self.distance_traveled,
-            "player_y": self.player.pos.y,
-            "player_vel": self.player.momentum,
-            "player_dist_to_ceil": self.player.pos.y - (current_terrain.pos.y - self.height * 0.25),
-            "player_dist_to_floor": (current_terrain.pos.y + self.height * 0.25) - self.player.pos.y,
+            "distance_traveled" : self.distance_traveled,
+            "player_y" : self.player.pos.y,
+            "player_vel" : self.player.momentum,
+            "player_dist_to_ceil" : self.player.pos.y - (current_terrain.pos.y - self.height * 0.25),
+            "player_dist_to_floor" : (current_terrain.pos.y + self.height * 0.25) - self.player.pos.y,
             "next_gate_dist_to_player": min_dist,
-            "next_gate_block_top": min_block.pos.y,
-            "next_gate_block_bottom": min_block.pos.y + min_block.height
+            "next_gate_block_top" : min_block.pos.y,
+            "next_gate_block_bottom" : min_block.pos.y + min_block.height,
+            "segments" : segments
         }
 
         return state

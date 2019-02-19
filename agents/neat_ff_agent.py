@@ -71,7 +71,7 @@ class Agent():
             See code for structure.
 
         """ 
-        inputs = list(game_state.values())[1:]
+        inputs = list(game_state.values())[1:8]
         inputs[0] /= 500
         inputs[1] /= 50
         inputs[2] /= 500
