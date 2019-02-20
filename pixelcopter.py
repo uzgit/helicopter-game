@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import math
 import sys
 import argparse
@@ -19,6 +20,7 @@ parser.add_argument("-a", "--agent",   help = "Name of the type of agent to use 
 parser.add_argument("-n", "--noisy-sensors",   help = "Adds gausian noise into the simulated sensor values. Noise amplitude for obstaces is directly proportional to the distance from the obstacle.", action="store_true")
 parser.add_argument("-d", "--no-data", help = "Suppresses on-screen data output.", action="store_true")
 parser.add_argument("-q", "--quiet-mode",   help = "Quiet mode simulates the game without animation.", action="store_true")
+parser.add_argument("-o", "--headless",   help = "Run the game entirely without a monitor.", action="store_true")
 arguments = parser.parse_args()
 
 #emulation_speed = arguments.speed
@@ -520,6 +522,9 @@ if __name__ == "__main__":
         agent = None
 
     #Instantiate and initialize the game
+    if arguments.headless == True:
+        os.environ["SDL_VIDEODRIVER"] = "dummy"
+    
     pygame.init()
     game = Pixelcopter(width=WINDOW_WIDTH, height=WINDOW_HEIGHT, agent=agent)
     game.screen = pygame.display.set_mode(game.getScreenDims(), 0, 32)
