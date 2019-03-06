@@ -309,7 +309,20 @@ class Pixelcopter(PyGameWrapper):
                 segment_occupied = 1.0
             segments.append(segment_occupied)
 
-        #print(segments)
+        look_ahead = 3 # number of terrains (in front of copter) to get dist_to_ceil and dist_to_floor
+        current_terrain_index = list(self.terrain_group).index(current_terrain)
+        all_terrains = list(self.terrain_group)
+        next_terrain_y_positions = []
+        for i in range(look_ahead):
+            next_terrain_y_positions.append(all_terrains[current_terrain_index + i].pos.y)
+
+        #print(next_terrain_y_positions)
+
+        height_ratios = []
+        for terrain_y_position in next_terrain_y_positions:
+            distance_to_ceiling = self.player.pos.y - (terrain_y_position - self.height * 0.25)
+            distance_to_floor   = (terrain_y_position + self.height * 0.25) - self.player.pos.y
+            height_ratios.append( distance_to_floor / (distance_to_floor + distance_to_ceiling) )
 
         state = {
             "distance_traveled" : self.distance_traveled,
@@ -320,6 +333,7 @@ class Pixelcopter(PyGameWrapper):
             "next_gate_dist_to_player": min_dist,
             "next_gate_block_top" : min_block.pos.y,
             "next_gate_block_bottom" : min_block.pos.y + min_block.height,
+            "height_ratios" : height_ratios,
             "segments" : segments
         }
 
@@ -419,10 +433,15 @@ class Pixelcopter(PyGameWrapper):
         
         if agent is not None:
             if arguments.noisy_sensors:
-                agent.reset(game.getNoisyGameState())
+                result = agent.reset(game.getNoisyGameState())
             else:
-                agent.reset(game.getGameState())
-        
+                result = agent.reset(game.getGameState())
+
+        if result is "quit":
+            print("Quit requested by agent.")
+            pygame.quit()
+            sys.exit()
+
         self.init()
 
     def step(self, dt):
