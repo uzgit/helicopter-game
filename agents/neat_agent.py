@@ -28,7 +28,6 @@ class Agent():
 
     def get_action(self, game_state):
 
-        # inputs = [0] * self.num_inputs
         inputs = [height_ratio for height_ratio in game_state["height_ratios"]]
         inputs += [segment for segment in game_state["segments"]]
         inputs.append(game_state["player_vel"] / 50)
