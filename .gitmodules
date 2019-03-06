@@ -1,3 +1,0 @@
-[submodule "agents/neat"]
-	path = agents/neat
-	url = https://github.com/uzgit/neat-neural-networks
