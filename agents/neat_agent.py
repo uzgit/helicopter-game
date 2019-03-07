@@ -10,7 +10,7 @@ class Agent():
 
     def __init__(self):
 
-        self.num_inputs = 11
+        self.num_inputs = 12
         self.num_outputs = 1
         self.initial_num_hidden_nodes = 0
         self.max_num_hidden_nodes = 10
@@ -40,7 +40,7 @@ class Agent():
         # normalized heights has 6 elements
         inputs = [normalized_height for normalized_height in game_state["normalized_heights"]]
 
-        # segments has 3 elements by default
+        # segments has 5 elements by default
         inputs += [segment for segment in game_state["segments"]]
 
         inputs.append(game_state["player_vel"] / 50)

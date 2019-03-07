@@ -295,19 +295,25 @@ class Pixelcopter(PyGameWrapper):
         current_terrain = pygame.sprite.spritecollide(
             self.player, self.terrain_group, False)[0]
 
-        scanner_height = 500 #pixels or something
+        scanner_height = 200 #pixels or something
         num_segments = 5
         segments = []
-        for i in range(num_segments - 1):
+        block_min = min_block.pos.y - min_block.height/2.0
+        block_max = min_block.pos.y + min_block.height/2.0
+        for i in range(num_segments):
             segment_bottom = (self.player.pos.y - scanner_height/2.0) + float(i) / num_segments * scanner_height
             segment_top = (self.player.pos.y - scanner_height/2.0) + float(i+1) / num_segments * scanner_height
             
-            segment_occupied = 0.0
-            if (min_block.pos.y <= segment_top and min_block.pos.y >= segment_bottom):
-                segment_occupied = 1.0
-            elif ((min_block.pos.y + min_block.height) <= segment_top and (min_block.pos.y + min_block.height) >= segment_bottom):
-                segment_occupied = 1.0
-            segments.append(segment_occupied)
+            segment_occupied = 0
+            if block_min <= segment_top and segment_top <= block_max:
+                segment_occupied = 1
+            elif block_min <= segment_bottom and segment_bottom <= block_max:
+                segment_occupied = 1
+            #if (min_block.pos.y <= segment_top and min_block.pos.y >= segment_bottom):
+            #    segment_occupied = 1.0
+            #elif ((min_block.pos.y - min_block.height) <= segment_top and (min_block.pos.y - min_block.height) >= segment_bottom):
+            #    segment_occupied = 1.0
+            segments.append(segment_occupied * ((1 - min_dist/750.0)**2))
 
         look_ahead = 3 # number of terrains (in front of copter) to get dist_to_ceil and dist_to_floor
         current_terrain_index = list(self.terrain_group).index(current_terrain)
@@ -534,7 +540,8 @@ def display_status_line_2(status):
     return "distance to: (ceiling: %-3.2f, floor: %3.2f)" %(status["player_dist_to_ceil"], status["player_dist_to_floor"])
 def display_status_line_3(status):
     return "obstacle: (distance: %3.2f, top: %3.2f, bottom: %3.2f)" %(status["next_gate_dist_to_player"], status["next_gate_block_top"], status["next_gate_block_bottom"])
-
+def display_status_line_4(status):
+    return "sensors: {}".format(status["segments"])
 #################################################################################################
 if __name__ == "__main__":
     import numpy as np
@@ -585,6 +592,7 @@ if __name__ == "__main__":
                 courier_font.render_to(game.screen, (0,  0), display_status_line_1(state), BLACK)
                 courier_font.render_to(game.screen, (0, 20), display_status_line_2(state), BLACK)
                 courier_font.render_to(game.screen, (0, 40), display_status_line_3(state), BLACK)
+                courier_font.render_to(game.screen, (0, 60), display_status_line_4(state), BLACK)
             
             # Animate
             if not arguments.quiet_mode:
