@@ -48,6 +48,8 @@ class Agent():
 
         # If we have evaluated all neural networks in the generation:
         if self.neural_network is None:
+            print(end="\r")
+            print(" "*100, end="\r")
             self.population.post_evaluation_tasks()
             self.population.pre_evaluation_tasks()
 
