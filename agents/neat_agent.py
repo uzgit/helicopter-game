@@ -17,7 +17,7 @@ class Agent():
         self.output_activation_function = step
 
         self.num_generations = None
-        self.fitness_goal = 100000
+        self.fitness_goal = 1000
 
         self.output_stream_name = "sys.stdout"
 
@@ -64,14 +64,13 @@ class Agent():
             print(end="\r")
             print(" "*100, end="\r")
             self.champion, self.generation_champion = self.population.post_evaluation_tasks()
-
-            # draw_neural_network_full(FeedForwardNeuralNetwork(self.champion), "champion")
-            # draw_neural_network_full(FeedForwardNeuralNetwork(self.generation_champion), "generation_champion")
+            self.population.save_run_data("run.data")
 
             self.population.pre_evaluation_tasks()
 
             if not self.population.continue_run(num_generations=self.num_generations, fitness_goal=self.fitness_goal):
-                self.population.save("neat_agent_gen{}_{}.population".format(self.population.generation, str(datetime.now()).replace(" ", "-")))
+                # self.population.save("neat_agent_gen{}_{}.population".format(self.population.generation, str(datetime.now()).replace(" ", "-")))
+                self.population.save_run_data("run.data")
                 return "quit"
 
             else:
