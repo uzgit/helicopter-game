@@ -38,7 +38,9 @@ class Agent():
 
     def reset(self, game_state):
 
-        # print("Reset requested by game. Network {} traveled a distance of {}.".format(self.neural_network.identifier, round(game_state["distance_traveled"], 2)))
+        print(end="\r")
+        print(" "*100, end="\r")
+        print("Reset requested by game. Network {} traveled a distance of {}.".format(self.neural_network.identifier, round(game_state["distance_traveled"], 2)), end="\r")
 
         # Set the fitness of the genome of the current neural network and go to the next neural network.
         self.neural_network.genome.fitness = game_state["distance_traveled"]
