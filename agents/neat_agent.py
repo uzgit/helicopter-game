@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 
 from .neat.functions import *
 from .neat.population import *
@@ -15,7 +16,7 @@ class Agent():
         self.max_num_hidden_nodes = 10
         self.output_activation_function = step
 
-        self.num_generations = None
+        self.num_generations = 2
         self.fitness_goal = 100000
 
         self.output_stream_name = "sys.stdout"
@@ -70,6 +71,7 @@ class Agent():
             self.population.pre_evaluation_tasks()
 
             if not self.population.continue_run(num_generations=self.num_generations, fitness_goal=self.fitness_goal):
+                self.population.save("neat_agent_gen{}_{}.population".format(self.population.generation, str(datetime.now()).replace(" ", "-")))
                 return "quit"
 
             else:
