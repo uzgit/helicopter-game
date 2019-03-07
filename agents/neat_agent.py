@@ -18,14 +18,14 @@ class Agent():
         self.num_generations = None
         self.fitness_goal = 100000
 
-        self.output_stream = sys.stdout
+        self.output_stream_name = "sys.stdout"
 
         self.outputs = {0 : None, 1 : "up"}
 
         self.champion = None
         self.generation_champion = None
 
-        self.population = Population(num_inputs=self.num_inputs, num_outputs=self.num_outputs, initial_num_hidden_nodes=self.initial_num_hidden_nodes, max_num_hidden_nodes=self.max_num_hidden_nodes, output_activation_function=step, output_stream=self.output_stream)
+        self.population = Population(num_inputs=self.num_inputs, num_outputs=self.num_outputs, initial_num_hidden_nodes=self.initial_num_hidden_nodes, max_num_hidden_nodes=self.max_num_hidden_nodes, output_activation_function=step, output_stream_name=self.output_stream_name)
         self.population.pre_evaluation_tasks()
 
         self.neural_network_iterator = iter(self.population.neural_networks)
@@ -64,8 +64,8 @@ class Agent():
             print(" "*100, end="\r")
             self.champion, self.generation_champion = self.population.post_evaluation_tasks()
 
-            draw_neural_network_full(FeedForwardNeuralNetwork(self.champion), "champion")
-            draw_neural_network_full(FeedForwardNeuralNetwork(self.generation_champion), "generation_champion")
+            # draw_neural_network_full(FeedForwardNeuralNetwork(self.champion), "champion")
+            # draw_neural_network_full(FeedForwardNeuralNetwork(self.generation_champion), "generation_champion")
 
             self.population.pre_evaluation_tasks()
 

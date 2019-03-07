@@ -1,39 +1,17 @@
 digraph {
-	8 -> 12 [color=black fontsize=9 label=0.07 style=dashed]
-	11 -> 12 [color=black fontsize=9 label=1.96 style=solid]
-	5 -> 12 [color=black fontsize=9 label=0.61 style=solid]
-	4 -> 12 [color=grey fontsize=9 label=-0.55 style=solid]
-	13 -> 12 [color=black fontsize=9 label=0.07 style=solid]
-	7 -> 13 [color=black fontsize=9 label=0.20 style=solid]
-	8 -> 13 [color=black fontsize=9 label=1.00 style=solid]
-	1 -> 13 [color=black fontsize=9 label=0.88 style=solid]
-	1 -> 14 [color=black fontsize=9 label=1.00 style=solid]
-	14 -> 13 [color=black fontsize=9 label=0.72 style=solid]
-	10 -> 12 [color=black fontsize=9 label=0.52 style=solid]
-	1 -> 13 [arrowhead=none style=invisible]
-	1 -> 14 [arrowhead=none style=invisible]
-	2 -> 13 [arrowhead=none style=invisible]
-	2 -> 14 [arrowhead=none style=invisible]
-	3 -> 13 [arrowhead=none style=invisible]
-	3 -> 14 [arrowhead=none style=invisible]
-	4 -> 13 [arrowhead=none style=invisible]
-	4 -> 14 [arrowhead=none style=invisible]
-	5 -> 13 [arrowhead=none style=invisible]
-	5 -> 14 [arrowhead=none style=invisible]
-	6 -> 13 [arrowhead=none style=invisible]
-	6 -> 14 [arrowhead=none style=invisible]
-	7 -> 13 [arrowhead=none style=invisible]
-	7 -> 14 [arrowhead=none style=invisible]
-	8 -> 13 [arrowhead=none style=invisible]
-	8 -> 14 [arrowhead=none style=invisible]
-	9 -> 13 [arrowhead=none style=invisible]
-	9 -> 14 [arrowhead=none style=invisible]
-	10 -> 13 [arrowhead=none style=invisible]
-	10 -> 14 [arrowhead=none style=invisible]
-	11 -> 13 [arrowhead=none style=invisible]
-	11 -> 14 [arrowhead=none style=invisible]
-	13 -> 12 [arrowhead=none style=invisible]
-	14 -> 12 [arrowhead=none style=invisible]
+	1 -> 12 [color=black fontsize=9 label=1.11 style=solid]
+	11 -> 12 [color=black fontsize=9 label=0.20 style=solid]
+	1 -> 12 [arrowhead=none style=invisible]
+	2 -> 12 [arrowhead=none style=invisible]
+	3 -> 12 [arrowhead=none style=invisible]
+	4 -> 12 [arrowhead=none style=invisible]
+	5 -> 12 [arrowhead=none style=invisible]
+	6 -> 12 [arrowhead=none style=invisible]
+	7 -> 12 [arrowhead=none style=invisible]
+	8 -> 12 [arrowhead=none style=invisible]
+	9 -> 12 [arrowhead=none style=invisible]
+	10 -> 12 [arrowhead=none style=invisible]
+	11 -> 12 [arrowhead=none style=invisible]
 	subgraph "input nodes" {
 		graph [rank=min]
 		1 [label="1
@@ -71,16 +49,10 @@ sum, None
 id" xlabel=11 color=red fontsize=9 height=0.2 shape=circle width=0.2]
 	}
 	subgraph "hidden nodes" {
-		13 [label="3
-sum, 7.6
-sig" xlabel=13 fontsize=9 height=0.2 shape=circle width=0.2]
-		14 [label="2
-sum, 3.0
-sig" xlabel=14 fontsize=9 height=0.2 shape=circle width=0.2]
 	}
 	subgraph "output nodes" {
 		graph [rank=max]
-		12 [label="4
+		12 [label="2
 sum, None
 step" xlabel=12 color=red fontsize=9 height=0.2 shape=circle width=0.2]
 	}
