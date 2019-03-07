@@ -4,7 +4,7 @@
 from .neat.genome import *
 from .neat.neural_network import *
 
-genome_file = "champion.genome"
+genome_file = "/home/joshua/PycharmProjects/helicopter-game/agents/champion.genome"
 
 class Agent():
 
