@@ -325,8 +325,8 @@ class Pixelcopter(PyGameWrapper):
             distance_to_floor   = (terrain_y_position + self.height * 0.25) - self.player.pos.y
             height_ratios.append( distance_to_floor / (distance_to_floor + distance_to_ceiling) )
 
-            normalized_heights.append( distance_to_ceiling / 350.0 )
-            normalized_heights.append( distance_to_floor / 350.0 )
+            normalized_heights.append( 1 - (distance_to_ceiling / 350.0) )
+            normalized_heights.append( 1 - (distance_to_floor / 350.0) )
 
         state = {
             "distance_traveled" : self.distance_traveled,
