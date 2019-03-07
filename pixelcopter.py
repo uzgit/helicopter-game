@@ -318,11 +318,15 @@ class Pixelcopter(PyGameWrapper):
 
         #print(next_terrain_y_positions)
 
+        normalized_heights = []
         height_ratios = []
         for terrain_y_position in next_terrain_y_positions:
             distance_to_ceiling = self.player.pos.y - (terrain_y_position - self.height * 0.25)
             distance_to_floor   = (terrain_y_position + self.height * 0.25) - self.player.pos.y
             height_ratios.append( distance_to_floor / (distance_to_floor + distance_to_ceiling) )
+
+            normalized_heights.append( distance_to_ceiling / 350.0 )
+            normalized_heights.append( distance_to_floor / 350.0 )
 
         state = {
             "distance_traveled" : self.distance_traveled,
@@ -334,7 +338,8 @@ class Pixelcopter(PyGameWrapper):
             "next_gate_block_top" : min_block.pos.y,
             "next_gate_block_bottom" : min_block.pos.y + min_block.height,
             "height_ratios" : height_ratios,
-            "segments" : segments
+            "segments" : segments,
+            "normalized_heights" : normalized_heights,
         }
 
         return state
@@ -437,10 +442,10 @@ class Pixelcopter(PyGameWrapper):
             else:
                 result = agent.reset(game.getGameState())
 
-        if result is "quit":
-            print("Quit requested by agent.")
-            pygame.quit()
-            sys.exit()
+            if result is "quit":
+                print("Quit requested by agent.")
+                pygame.quit()
+                sys.exit()
 
         self.init()
 

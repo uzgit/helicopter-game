@@ -2,23 +2,28 @@ import sys
 
 from .neat.functions import *
 from .neat.population import *
+from .neat.neural_network import *
+from .neat.visualize import *
 
 class Agent():
 
     def __init__(self):
 
-        self.num_inputs = 8
+        self.num_inputs = 11
         self.num_outputs = 1
         self.initial_num_hidden_nodes = 0
         self.max_num_hidden_nodes = 10
         self.output_activation_function = step
 
         self.num_generations = None
-        self.fitness_goal = 50000
+        self.fitness_goal = 100000
 
         self.output_stream = sys.stdout
 
         self.outputs = {0 : None, 1 : "up"}
+
+        self.champion = None
+        self.generation_champion = None
 
         self.population = Population(num_inputs=self.num_inputs, num_outputs=self.num_outputs, initial_num_hidden_nodes=self.initial_num_hidden_nodes, max_num_hidden_nodes=self.max_num_hidden_nodes, output_activation_function=step, output_stream=self.output_stream)
         self.population.pre_evaluation_tasks()
@@ -28,8 +33,15 @@ class Agent():
 
     def get_action(self, game_state):
 
-        inputs = [height_ratio for height_ratio in game_state["height_ratios"]]
+        # height ratios has 4 elements
+        # inputs = [height_ratio for height_ratio in game_state["height_ratios"]]
+
+        # normalized heights has 6 elements
+        inputs = [normalized_height for normalized_height in game_state["normalized_heights"]]
+
+        # segments has 3 elements by default
         inputs += [segment for segment in game_state["segments"]]
+
         inputs.append(game_state["player_vel"] / 50)
 
         action = self.outputs.get( self.neural_network.activate(inputs)[0], None )
@@ -50,7 +62,11 @@ class Agent():
         if self.neural_network is None:
             print(end="\r")
             print(" "*100, end="\r")
-            self.population.post_evaluation_tasks()
+            self.champion, self.generation_champion = self.population.post_evaluation_tasks()
+
+            draw_neural_network_full(FeedForwardNeuralNetwork(self.champion), "champion")
+            draw_neural_network_full(FeedForwardNeuralNetwork(self.generation_champion), "generation_champion")
+
             self.population.pre_evaluation_tasks()
 
             if not self.population.continue_run(num_generations=self.num_generations, fitness_goal=self.fitness_goal):
