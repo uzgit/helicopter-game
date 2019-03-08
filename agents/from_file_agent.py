@@ -4,7 +4,7 @@
 from .neat.genome import *
 from .neat.neural_network import *
 
-genome_file = "/home/joshua/PycharmProjects/helicopter-game/agents/champion.genome"
+genome_file = "genomes/champion.genome"
 
 class Agent():
 
@@ -21,7 +21,8 @@ class Agent():
 
     def get_action(self, game_state):
 
-        inputs = [height_ratio for height_ratio in game_state["height_ratios"]]
+        # inputs = [height_ratio for height_ratio in game_state["height_ratios"]]
+        inputs = [normalized_height for normalized_height in game_state["normalized_heights"]]
         inputs += [segment for segment in game_state["segments"]]
         inputs.append(game_state["player_vel"] / 50)
 

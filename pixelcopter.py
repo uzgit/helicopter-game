@@ -541,7 +541,12 @@ def display_status_line_2(status):
 def display_status_line_3(status):
     return "obstacle: (distance: %3.2f, top: %3.2f, bottom: %3.2f)" %(status["next_gate_dist_to_player"], status["next_gate_block_top"], status["next_gate_block_bottom"])
 def display_status_line_4(status):
-    return "sensors: {}".format(status["segments"])
+    #return "sensors: {}".format(status["segments"])
+    representation = "sensors: ["
+    for sensor_output in status["segments"]:
+        representation += "%4.3f," % sensor_output
+    representation += "]"
+    return representation
 #################################################################################################
 if __name__ == "__main__":
     import numpy as np
