@@ -50,7 +50,7 @@ To run the game using noisy positioning data:
 
 To run the game without animation (```--quiet-mode```), for quicker testing of an agent:
 
-```./pixelcopter.py --fps 4000 --agent stupid_agent --quiet-mode```
+```./pixelcopter.py --fps 4000 --agent stupid_agent --quiet-mode --headless```
 
 
 By default, the game is in 'flappy' mode, like in Flappy Bird. However, it can be run in 'helicopter' mode:
