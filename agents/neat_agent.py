@@ -16,8 +16,8 @@ class Agent():
         self.max_num_hidden_nodes = 10
         self.output_activation_function = step
 
-        self.num_generations = None
-        self.fitness_goal = 1000
+        self.num_generations = 100
+        self.fitness_goal = None
 
         self.output_stream_name = "sys.stdout"
 
