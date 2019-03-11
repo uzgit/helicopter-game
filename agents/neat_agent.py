@@ -10,7 +10,7 @@ class Agent():
 
     def __init__(self):
 
-        self.num_inputs = 12
+        self.num_inputs = 11
         self.num_outputs = 1
         self.initial_num_hidden_nodes = 0
         self.max_num_hidden_nodes = 10
@@ -43,7 +43,7 @@ class Agent():
         # segments has 5 elements by default
         inputs += [segment for segment in game_state["segments"]]
 
-        inputs.append(game_state["player_vel"] / 50)
+        # inputs.append(game_state["player_vel"] / 50)
 
         action = self.outputs.get( self.neural_network.activate(inputs)[0], None )
 
