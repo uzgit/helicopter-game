@@ -65,3 +65,9 @@ Agents must be contained in a uniquely-named ```.py``` file within a class ```Ag
 * ```Agent(self)``` is the constructor called by the game.
 * ```get_action(self, game_state)``` is called by the game once per frame. It supplies the agent with the current state of the game and expects an action.
 * ```reset(self, game_state)``` is called by the game in the event of a game-over.
+
+## Agent Inputs
+
+* ```normalized_heights```: array of normalized values representing the helicopter's closeness to the top and bottom of each of the next 3 terrain sections.
+* ```sensors```: 5 proximity sensors aimed in front of the helicopter. 0 means no obstacle. Anything above 0 represents an obstacle at the height of the sensor, and increases to 1 as the obstacle becomes closer.
+* ```y_velocity```: how quickly the helicopter is moving upwards or downwards. Not normalized.
