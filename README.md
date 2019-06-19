@@ -18,6 +18,7 @@ Clipart for the helicopter is taken from https://www.clipartmax.com/download/m2i
 * ```matplotlib```
 * ```numpy```
 * ```pygame```
+* ```graphviz```
 
 ## Included Libraries:
 
